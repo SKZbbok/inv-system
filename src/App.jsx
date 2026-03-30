@@ -4,13 +4,17 @@ export default function App() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    // 🔥 테스트 데이터 (API 없이 바로 실행)
-    setData({
-      fx: 1450,
-      vix: 22,
-      cnn: 40,
-      googl: 150
-    });
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/market");
+        const json = await res.json();
+        setData(json);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    fetchData();
   }, []);
 
   if (!data) return <div style={{ color: "white" }}>로딩중...</div>;
