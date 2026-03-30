@@ -1,25 +1,17 @@
 export default async function handler(req, res) {
   try {
     const urls = [
-      "https://stooq.com/q/l/?s=usdkrw&f=sd2t2ohlcv&h&e=json",
-      "https://stooq.com/q/l/?s=%5Evix&f=sd2t2ohlcv&h&e=json",
-      "https://stooq.com/q/l/?s=googl.us&f=sd2t2ohlcv&h&e=json"
+      "https://query1.finance.yahoo.com/v7/finance/quote?symbols=KRW=X",
+      "https://query1.finance.yahoo.com/v7/finance/quote?symbols=^VIX",
+      "https://query1.finance.yahoo.com/v7/finance/quote?symbols=GOOGL"
     ];
 
-    const responses = await Promise.all(
-      urls.map(url =>
-        fetch(url, {
-          headers: { "User-Agent": "Mozilla/5.0" }
-        })
-      )
-    );
-
+    const responses = await Promise.all(urls.map(url => fetch(url)));
     const datas = await Promise.all(responses.map(r => r.json()));
 
-    // 🔥 안전 파싱
-    const fx = parseFloat(datas[0]?.data?.[0]?.c) || 0;
-    const vix = parseFloat(datas[1]?.data?.[0]?.c) || 0;
-    const googl = parseFloat(datas[2]?.data?.[0]?.c) || 0;
+    const fx = datas[0]?.quoteResponse?.result?.[0]?.regularMarketPrice || 0;
+    const vix = datas[1]?.quoteResponse?.result?.[0]?.regularMarketPrice || 0;
+    const googl = datas[2]?.quoteResponse?.result?.[0]?.regularMarketPrice || 0;
 
     const cnn =
       vix < 15 ? 80 :
