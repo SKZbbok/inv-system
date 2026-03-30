@@ -1,28 +1,35 @@
 export default async function handler(req, res) {
   try {
-    const getPrice = async (url) => {
-      const r = await fetch(url);
-      const j = await r.json();
-      return j?.quoteResponse?.result?.[0]?.regularMarketPrice || null;
-    };
+    const urls = [
+      "https://query1.finance.yahoo.com/v7/finance/quote?symbols=KRW=X",
+      "https://query1.finance.yahoo.com/v7/finance/quote?symbols=^VIX",
+      "https://query1.finance.yahoo.com/v7/finance/quote?symbols=GOOGL"
+    ];
 
-    const fx = await getPrice("https://query1.finance.yahoo.com/v7/finance/quote?symbols=KRW=X");
-    const googl = await getPrice("https://query1.finance.yahoo.com/v7/finance/quote?symbols=GOOGL");
+    const responses = await Promise.all(urls.map(url => fetch(url)));
+    const datas = await Promise.all(responses.map(r => r.json()));
+
+    // 안전하게 값 꺼내기
+    const fx = datas[0]?.quoteResponse?.result?.[0]?.regularMarketPrice ?? 0;
+    const vix = datas[1]?.quoteResponse?.result?.[0]?.regularMarketPrice ?? 0;
+    const googl = datas[2]?.quoteResponse?.result?.[0]?.regularMarketPrice ?? 0;
+
+    // CNN Fear 계산
+    let cnn =
+      vix < 15 ? 80 :
+      vix < 20 ? 60 :
+      vix < 25 ? 40 :
+      vix < 30 ? 25 : 10;
 
     res.status(200).json({
-      fx: fx ? Math.round(fx) : 0,
-      vix: 20,
-      cnn: 40,
-      googl: googl ? Math.round(googl) : 0
+      fx,
+      vix,
+      cnn,
+      googl
     });
 
   } catch (error) {
-    res.status(200).json({
-      fx: 0,
-      vix: 20,
-      cnn: 40,
-      googl: 0,
-      error: "fallback"
-    });
+    console.error(error);
+    res.status(500).json({ error: "API error" });
   }
 }
