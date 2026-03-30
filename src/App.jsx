@@ -4,12 +4,16 @@ export default function App() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch("/api/market")
-      .then(res => res.json())
-      .then(setData);
+    // 🔥 테스트 데이터 (API 없이 바로 실행)
+    setData({
+      fx: 1450,
+      vix: 22,
+      cnn: 40,
+      googl: 150
+    });
   }, []);
 
-  if (!data) return <div style={{color:"white"}}>로딩중...</div>;
+  if (!data) return <div style={{ color: "white" }}>로딩중...</div>;
 
   const { fx, vix, cnn, googl } = data;
 
@@ -34,18 +38,18 @@ export default function App() {
   }
 
   return (
-    <div style={{background:"#07070e", color:"#fff", minHeight:"100vh", padding:20}}>
-      <h2>🔥 실전 자동 매수 시스템</h2>
+    <div style={{ background: "#07070e", color: "#fff", minHeight: "100vh", padding: 20 }}>
+      <h2>📊 실전 자동 매수 시스템</h2>
 
-      <p>💱 환율: {fx.toFixed(0)}</p>
-      <p>📈 VIX: {vix.toFixed(2)}</p>
-      <p>😱 CNN Fear: {cnn}</p>
-      <p>📊 GOOGL: ${googl}</p>
+      <p>💱 환율: {fx}</p>
+      <p>📉 VIX: {vix}</p>
+      <p>🧠 CNN Fear: {cnn}</p>
+      <p>📈 GOOGL: {googl}</p>
 
       <hr />
 
-      <h3>👉 매수 판단</h3>
-      <p style={{fontSize:24, color:"#f5c542"}}>
+      <h3>🔥 매수 판단</h3>
+      <p style={{ fontSize: 24, color: "#f5c542" }}>
         매수 강도: {Math.round(strength())}%
       </p>
     </div>
