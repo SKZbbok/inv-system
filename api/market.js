@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   try {
     const urls = [
       "https://stooq.com/q/l/?s=usdkrw&f=sd2t2ohlcv&h&e=json",
-      "https://stooq.com/q/l/?s=^vix&f=sd2t2ohlcv&h&e=json",
+      "https://stooq.com/q/l/?s=%5Evix&f=sd2t2ohlcv&h&e=json",
       "https://stooq.com/q/l/?s=googl.us&f=sd2t2ohlcv&h&e=json"
     ];
 
@@ -16,9 +16,10 @@ export default async function handler(req, res) {
 
     const datas = await Promise.all(responses.map(r => r.json()));
 
-    const fx = Number(datas[0]?.data?.[0]?.close) || 0;
-    const vix = Number(datas[1]?.data?.[0]?.close) || 0;
-    const googl = Number(datas[2]?.data?.[0]?.close) || 0;
+    // 🔥 안전 파싱
+    const fx = parseFloat(datas[0]?.data?.[0]?.c) || 0;
+    const vix = parseFloat(datas[1]?.data?.[0]?.c) || 0;
+    const googl = parseFloat(datas[2]?.data?.[0]?.c) || 0;
 
     const cnn =
       vix < 15 ? 80 :
