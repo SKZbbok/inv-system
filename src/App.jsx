@@ -4,17 +4,32 @@ export default function App() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch("/api/market")
-      .then(res => res.json())
-      .then(d => setData(d))
-      .catch(() => {
-        setData({
-          fx: 0,
-          vix: 0,
-          cnn: 0,
-          googl: 0
-        });
-      });
+    async function fetchData() {
+      try {
+        const res = await fetch(
+          "https://query1.finance.yahoo.com/v7/finance/quote?symbols=KRW=X,^VIX,GOOGL"
+        );
+        const json = await res.json();
+        const result = json.quoteResponse.result;
+
+        const fx = result[0]?.regularMarketPrice || 0;
+        const vix = result[1]?.regularMarketPrice || 0;
+        const googl = result[2]?.regularMarketPrice || 0;
+
+        const cnn =
+          vix < 15 ? 80 :
+          vix < 20 ? 60 :
+          vix < 25 ? 40 :
+          vix < 30 ? 25 : 10;
+
+        setData({ fx, vix, cnn, googl });
+      } catch (e) {
+        console.error(e);
+        setData({ fx: 0, vix: 0, cnn: 0, googl: 0 });
+      }
+    }
+
+    fetchData();
   }, []);
 
   if (!data) return <div style={{ color: "white" }}>로딩중...</div>;
