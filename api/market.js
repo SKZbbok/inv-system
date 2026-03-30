@@ -1,31 +1,25 @@
 export default async function handler(req, res) {
   try {
-    // 환율
-    const fxRes = await fetch("https://open.er-api.com/v6/latest/USD");
+    const fxRes = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=KRW");
     const fxData = await fxRes.json();
 
-    // Yahoo Finance (VIX + GOOGL)
-    const marketRes = await fetch(
-      "https://query1.finance.yahoo.com/v7/finance/quote?symbols=%5EVIX,GOOGL"
-    );
-    const marketData = await marketRes.json();
+    const vixRes = await fetch("https://query1.finance.yahoo.com/v7/finance/quote?symbols=^VIX");
+    const vixData = await vixRes.json();
 
-    const result = marketData.quoteResponse.result;
+    const cnnRes = await fetch("https://production.dataviz.cnn.io/index/fearandgreed/graphdata");
+    const cnnData = await cnnRes.json();
 
-    const vix = result.find(x => x.symbol === "^VIX")?.regularMarketPrice;
-    const googl = result.find(x => x.symbol === "GOOGL")?.regularMarketPrice;
-
-    // CNN Fear (임시 대체: 시장 심리 근사)
-    const cnnFear = Math.min(100, Math.max(0, 100 - vix * 2));
+    const googlRes = await fetch("https://query1.finance.yahoo.com/v7/finance/quote?symbols=GOOGL");
+    const googlData = await googlRes.json();
 
     res.status(200).json({
       fx: fxData.rates.KRW,
-      vix,
-      googl,
-      cnn: Math.round(cnnFear)
+      vix: vixData.quoteResponse.result[0].regularMarketPrice,
+      cnn: cnnData.fear_and_greed.score,
+      googl: googlData.quoteResponse.result[0].regularMarketPrice
     });
 
-  } catch (e) {
-    res.status(500).json({ error: "data fetch failed" });
+  } catch (err) {
+    res.status(500).json({ error: "API error" });
   }
 }
