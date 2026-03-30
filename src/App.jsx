@@ -6,21 +6,21 @@ export default function App() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch(
-          "https://query1.finance.yahoo.com/v7/finance/quote?symbols=KRW=X,^VIX,GOOGL"
-        );
-        const json = await res.json();
-        const result = json.quoteResponse.result;
+        const res = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=KRW");
+        const fxData = await res.json();
 
-        const fx = result[0]?.regularMarketPrice || 0;
-        const vix = result[1]?.regularMarketPrice || 0;
-        const googl = result[2]?.regularMarketPrice || 0;
+        const fx = fxData?.rates?.KRW || 0;
+
+        // VIX는 임시값 (무료 API 거의 없음)
+        const vix = 22;
 
         const cnn =
           vix < 15 ? 80 :
           vix < 20 ? 60 :
           vix < 25 ? 40 :
           vix < 30 ? 25 : 10;
+
+        const googl = 150; // 임시값
 
         setData({ fx, vix, cnn, googl });
       } catch (e) {
@@ -60,7 +60,7 @@ export default function App() {
     <div style={{ background: "#07070e", color: "#fff", minHeight: "100vh", padding: 20 }}>
       <h2>📊 실전 자동 매수 시스템</h2>
 
-      <p>💱 환율: {fx}</p>
+      <p>💱 환율: {Math.round(fx)}</p>
       <p>📉 VIX: {vix}</p>
       <p>🧠 CNN Fear: {cnn}</p>
       <p>📈 GOOGL: {googl}</p>
