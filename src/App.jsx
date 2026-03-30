@@ -4,17 +4,17 @@ export default function App() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/market");
-        const json = await res.json();
-        setData(json);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    fetchData();
+    fetch("/api/market")
+      .then(res => res.json())
+      .then(d => setData(d))
+      .catch(() => {
+        setData({
+          fx: 0,
+          vix: 0,
+          cnn: 0,
+          googl: 0
+        });
+      });
   }, []);
 
   if (!data) return <div style={{ color: "white" }}>로딩중...</div>;
